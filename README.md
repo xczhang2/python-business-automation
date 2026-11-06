@@ -1,10 +1,4 @@
-\## 学習内容
+Git Day3
 
-
-
-\- Python
-
-\- SQL
-
-\- Streamlit
+ブランチ練習中
 
