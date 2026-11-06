@@ -1,6 +1,3 @@
-Git Day4
-
-main編集
-
-feature-a編集
-
+Git練習
+Day5
+Pull Requestの練習
