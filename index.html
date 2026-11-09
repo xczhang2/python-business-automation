@@ -3,7 +3,9 @@
 <head>
 <meta name="viewport"
       content="width=device-width, initial-scale=1.0", charset="UTF-8">
-<title>張学誠 Portfolio</title>
+<title>
+張学誠 Portfolio
+</title>
 </head>
 <style>
 
@@ -29,15 +31,22 @@ h2 {
     border-radius: 10px;
 
     box-shadow: 0 0 10px #ccc;
+
+    transition: 0.3s;
+}
+
+.card:hover {
+
+    transform: scale(1.02);
 }
 
 table {
+    width: 100%;
     border-collapse: collapse;
 }
 
-th,
-td {
-    border: 1px solid black;
+th, td {
+    border: 1px solid #cccccc;
     padding: 10px;
 }
 
@@ -55,12 +64,37 @@ li {
 
     margin: auto;
 }
+
+.btn {
+
+    display: inline-block;
+
+    background: #003366;
+
+    color: white;
+
+    padding: 10px 20px;
+
+    text-decoration: none;
+
+    border-radius: 5px;
+}
+
+.btn:hover {
+
+    background: #0055aa;
+}
+
+footer {
+
+    margin-top: 50px;
+
+    text-align: center;
+}
+
 </style>
 <body>
 <div class="container">
-<a href="https://github.com/xczhang2">
-GitHubプロフィール
-</a>
 
 <div class="card">
 
@@ -98,24 +132,38 @@ GitHubプロフィール
 <li>AP管理ツール</li>
 <li>支払予定表作成ツール</li>
 <li>AI経理業務アシスタント</li>
+<li>Excel自動化ツール</li>
+<li>売上分析ダッシュボード</li>
+<li>請求書チェックツール</li>
 </ul>
 </div>
-<table>
-<tr>
-    <th>技術</th>
-    <th>レベル</th>
-</tr>
 
-<tr>
-    <td>Python</td>
-    <td>初級</td>
-</tr>
+<div class="card">
 
-<tr>
-    <td>SQL</td>
-    <td>初級</td>
-</tr>
-</table>
+<h2>今後の学習</h2>
+
+<ul>
+    <li>Power Automate</li>
+    <li>Azure OpenAI</li>
+    <li>LangChain</li>
+    <li>AI Agent</li>
+</ul>
+
 </div>
+
+<a href="https://github.com/xczhang2"
+class="btn">
+GitHubプロフィール
+</a>
+
+</div>
+
+<footer>
+
+<p>
+© 2026 張学誠
+</p>
+
+</footer>
 </body>
 </html>
