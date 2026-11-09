@@ -110,17 +110,9 @@
 
     </button>
 
-    <div class="card">
-        <h2>スキル</h2>
-
-        <ul>
-            <li>Python</li>
-            <li>SQL</li>
-            <li>Git/GitHub</li>
-            <li>Streamlit</li>
-        </ul>
-    </div>
-
+    <p id="skill">
+    未表示
+    </p>
 
     <div class="card">
         <h2>作成したツール</h2>
@@ -227,6 +219,15 @@ function changeMessage() {
         "message"
     ).innerHTML =
     "ありがとうございます！";
+
+}
+
+function showSkill() {
+
+    document.getElementById(
+        "skill"
+    ).innerHTML =
+    "Python / SQL / Git";
 
 }
 
