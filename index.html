@@ -283,53 +283,6 @@ function greet() {
 
 let tasks = [];
 
-function addTask() {
-
-    let task =
-        document.getElementById(
-            "task"
-        ).value;
-
-    if(task == "") {
-
-        return;
-
-    }
-
-    tasks.push(task);
-
-    document.getElementById(
-        "task"
-    ).value = "";
-
-    showTasks();
-}
-
-function showTasks() {
-
-    let html = "";
-
-    for(let task of tasks) {
-
-        html +=
-            "<li>" +
-            task +
-            "</li>";
-    }
-
-    document.getElementById(
-        "taskList"
-    ).innerHTML = html;
-
-    document.getElementById(
-        "count"
-    ).innerHTML =
-        tasks.length + "件";
-}
-
-
-let tasks = [];
-
 window.onload =
 function() {
 
