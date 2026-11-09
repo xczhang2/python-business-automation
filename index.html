@@ -98,6 +98,17 @@
 
     </button>
 
+    <p id="message">
+
+    ボタンを押してください
+
+    </p>
+ 
+    <button onclick="changeMessage()">
+
+    メッセージ変更
+
+    </button>
 
     <div class="card">
         <h2>スキル</h2>
@@ -207,6 +218,15 @@ function hello() {
 function profile() {
 
     alert("本社勤務 / Python学習中");
+
+}
+
+function changeMessage() {
+
+    document.getElementById(
+        "message"
+    ).innerHTML =
+    "ありがとうございます！";
 
 }
 
