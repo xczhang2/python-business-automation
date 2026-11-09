@@ -86,6 +86,22 @@
 
 <div class="container">
 
+    <div class="card">
+
+    <h2>名前入力</h2>
+
+    <input
+        type="text"
+        id="name">
+
+    </div>
+
+    <button onclick="greet()">
+
+    挨拶する
+
+    </button>
+
     <button onclick="hello()">
 
     クリックしてください
@@ -234,6 +250,15 @@ function showSkill() {
         "skill"
     ).innerHTML =
     "Python / SQL / Git";
+
+}
+
+function greet() {
+
+    let name =
+        document.getElementById("name").value;
+
+    alert("こんにちは " + name + " さん");
 
 }
 
