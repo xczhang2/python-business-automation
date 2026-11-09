@@ -87,16 +87,18 @@
 <div class="container">
 
     <input
-     type="text"
-     id="task">
+    type="text"
+    id="task">
 
     <button onclick="addTask()">
     追加
     </button>
 
-    <ul id="taskList"></ul>
+    <button onclick="clearTasks()">
+    全削除
+    </button>
 
-    <p id="count"></p>
+    <ul id="taskList"></ul>
 
     <div class="card">
 
@@ -323,6 +325,86 @@ function showTasks() {
         "count"
     ).innerHTML =
         tasks.length + "件";
+}
+
+
+let tasks = [];
+
+window.onload =
+function() {
+
+    loadTasks();
+
+};
+
+function addTask() {
+
+    let task =
+        document.getElementById(
+            "task"
+        ).value;
+
+    if(task == "") {
+
+        return;
+
+    }
+
+    tasks.push(task);
+
+    saveTasks();
+
+    showTasks();
+
+    document.getElementById(
+        "task"
+    ).value = "";
+}
+
+function saveTasks() {
+
+    localStorage.setItem(
+        "tasks",
+        JSON.stringify(tasks)
+    );
+}
+
+function loadTasks() {
+
+    tasks =
+        JSON.parse(
+            localStorage.getItem(
+                "tasks"
+            )
+        ) || [];
+
+    showTasks();
+}
+
+function showTasks() {
+
+    let html = "";
+
+    for(let task of tasks) {
+
+        html +=
+            "<li>" +
+            task +
+            "</li>";
+    }
+
+    document.getElementById(
+        "taskList"
+    ).innerHTML = html;
+}
+
+function clearTasks() {
+
+    tasks = [];
+
+    saveTasks();
+
+    showTasks();
 }
 
 </script>
