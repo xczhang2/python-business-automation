@@ -96,6 +96,8 @@
 
     </div>
 
+    <p id="result"></p>
+
     <button onclick="greet()">
 
     挨拶する
@@ -258,7 +260,10 @@ function greet() {
     let name =
         document.getElementById("name").value;
 
-    alert("こんにちは " + name + " さん");
+    document.getElementById(
+        "result"
+    ).innerHTML =
+    "こんにちは " + name + " さん";
 
 }
 
