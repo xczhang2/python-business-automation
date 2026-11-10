@@ -135,6 +135,8 @@
 
     <div class="card">
      
+    <h2>CSV取込</h2>
+
     <input
         type="file"
         id="csvFile">
@@ -147,6 +149,30 @@
     全削除
     </button>
     
+    </div>
+
+    <div class="card">
+
+        <h2>取込結果</h2>
+
+        <p id="validCount">
+            正常件数：0件
+        </p>
+
+        <p id="errorCount">
+            エラー件数：0件
+        </p>
+
+    </div>
+
+    <div class="card">
+
+        <h2>エラー一覧</h2>
+
+        <div id="errorList">
+
+        </div>
+
     </div>
 
     <div class="card">
@@ -210,6 +236,8 @@
 <script>
 
     let payments = [];
+
+    let errors = [];
 
     window.onload = function(){
 
@@ -350,8 +378,8 @@
             }
         }
 
-        let avg =
-            total / payments.length;
+        let avg = Math.round(
+            total / payments.length);
 
         document.getElementById(
             "totalAmount"
@@ -419,25 +447,30 @@
                 "csvFile"
             ).files[0];
 
+        if(!file){
+
+            alert(
+              "ファイルを選択してください"
+            );
+
+            return;
+
+        }
+
         let reader =
             new FileReader();
-
-    if(!file){
-
-        alert(
-          "ファイルを選択してください"
-        );
-
-        return;
-
-    }
 
         reader.onload =
         function(e){
 
-        let lines =
-            e.target.result
-             .split("\n");
+            let lines =
+                e.target.result
+                    .trim()
+                    .split("\n");
+
+            payments = [];
+
+            errors = [];
 
             for(
               let i = 1;
@@ -455,25 +488,101 @@
 
                 }
 
-                payments.push({
+                let vendor =
+                cols[0].trim();
 
-                     vendor:
-                     cols[0],
+            let amountText =
+                cols[1].trim();
 
-                     amount:
-                     Number(cols[1])
+            if(vendor == ""){
 
-                });
+                errors.push(
+                    "取引先未入力 : 行 " + i
+                );
 
-           }
+                continue;
+            }
+
+            if(amountText == ""){
+
+                errors.push(
+                    "金額未入力 : " +
+                    vendor
+                );
+
+                continue;
+            }
+
+            let amount =
+                Number(amountText);
+
+            if(isNaN(amount)){
+
+                errors.push(
+                    "数値エラー : " +
+                    vendor
+                );
+
+                continue;
+            }
+
+            if(amount <= 0){
+
+                errors.push(
+                    "金額エラー : " +
+                    vendor
+                );
+
+                continue;
+            }
+
+            let exists =
+                payments.some(
+
+                    p =>
+
+                    p.vendor === vendor
+                    &&
+                    p.amount === amount
+
+                );
+
+            if(exists){
+
+                errors.push(
+                    "重複データ : " +
+                    vendor
+                );
+
+                continue;
+            }
+
+            payments.push({
+
+                vendor : vendor,
+
+                amount : amount
+
+            });
+
+        }
 
         savePayments();
+        
         showPayments();
+        
         updateSummary();
+        
         showChart();
+
+        showErrors();
+        
         };
 
-        reader.readAsText(file);
+        reader.readAsText(
+            file,
+            "UTF-8"
+        );
 
     }
 
@@ -489,6 +598,43 @@
 
         showChart();
     }
+
+    function showErrors(){
+
+        let html = "";
+
+        for(let err of errors){
+
+            html +=
+            "<p style='color:red'>"
+            + err +
+            "</p>";
+        }
+
+        if(errors.length == 0){
+
+            html =
+            "<p style='color:green'>エラーなし</p>";
+        }
+
+        document.getElementById(
+            "errorList"
+        ).innerHTML = html;
+
+        document.getElementById(
+            "validCount"
+        ).innerHTML =
+            "正常件数：" +
+            payments.length +
+            "件";
+
+        document.getElementById(
+            "errorCount"
+        ).innerHTML =
+            "エラー件数：" +
+            errors.length +
+            "件";
+        }
 
 </script>
 
