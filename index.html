@@ -312,6 +312,10 @@ function showSkill() {
           "</td></tr>";
     }
 
+    list.sort(
+     (a,b) =>
+     b.amount - a.amount
+    );
         for(let payment of list) {
 
             html += `
