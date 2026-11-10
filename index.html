@@ -228,6 +228,7 @@
 </div>
 
 </body>
+
 <script>
 
 function hello() {
@@ -258,97 +259,6 @@ function showSkill() {
     ).innerHTML =
     "Python / SQL / Git";
 
-}
-
-function greet() {
-
-    let name =
-        document.getElementById("name").value;
-
-    document.getElementById(
-        "result"
-    ).innerHTML =
-    "こんにちは " + name + " さん";
-
-}
-
-let tasks = [];
-
-window.onload =
-function() {
-
-    loadTasks();
-
-};
-
-function addTask() {
-
-    let task =
-        document.getElementById(
-            "task"
-        ).value;
-
-    if(task == "") {
-
-        return;
-
-    }
-
-    tasks.push(task);
-
-    saveTasks();
-
-    showTasks();
-
-    document.getElementById(
-        "task"
-    ).value = "";
-}
-
-function saveTasks() {
-
-    localStorage.setItem(
-        "tasks",
-        JSON.stringify(tasks)
-    );
-}
-
-function loadTasks() {
-
-    tasks =
-        JSON.parse(
-            localStorage.getItem(
-                "tasks"
-            )
-        ) || [];
-
-    showTasks();
-}
-
-function showTasks() {
-
-    let html = "";
-
-    for(let task of tasks) {
-
-        html +=
-            "<li>" +
-            task +
-            "</li>";
-    }
-
-    document.getElementById(
-        "taskList"
-    ).innerHTML = html;
-}
-
-function clearTasks() {
-
-    tasks = [];
-
-    saveTasks();
-
-    showTasks();
 }
 
     let payments = [
