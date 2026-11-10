@@ -7,7 +7,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>張学誠 Portfolio</title>
+    <title>宇宙67 Portfolio</title>
 
     <style>
 
@@ -86,6 +86,44 @@
 
 <div class="container">
 
+    <input
+     type="text"
+     id="vendor"
+     placeholder="取引先">
+
+    <input
+     type="number"
+     id="amount"
+     placeholder="支払額">
+
+    <button onclick="addPayment()">
+
+    追加
+
+    </button>
+
+    <p id="total"></p>
+
+    <table>
+
+    <thead>
+
+    <tr>
+
+    <th>取引先</th>
+
+    <th>支払額</th>
+
+    </tr>
+
+    </thead>
+
+    <tbody id="paymentTable">
+
+    </tbody>
+
+    </table>
+    
     <input
     type="text"
     id="task">
@@ -229,7 +267,7 @@
     <footer>
 
         <p>
-            © 2026 張学誠 Portfolio
+            © 2026 宇宙67 Portfolio
         </p>
 
     </footer>
@@ -358,6 +396,75 @@ function clearTasks() {
     saveTasks();
 
     showTasks();
+}
+
+let payments = [];
+
+function addPayment() {
+
+    let vendor =
+        document.getElementById(
+            "vendor"
+        ).value;
+
+    let amount =
+        Number(
+            document.getElementById(
+                "amount"
+            ).value
+        );
+
+    payments.push({
+
+        vendor: vendor,
+
+        amount: amount
+
+    });
+
+    showPayments();
+
+}
+
+function showPayments() {
+
+    let html = "";
+
+    for(let payment of payments) {
+
+        html += `
+        <tr>
+
+            <td>${payment.vendor}</td>
+
+            <td>
+            ${payment.amount.toLocaleString()}
+            </td>
+
+        </tr>
+        `;
+    }
+
+    document.getElementById(
+        "paymentTable"
+    ).innerHTML = html;
+    
+    let total = 0;
+
+    for(let payment of payments) {
+
+        total += payment.amount;
+
+    }
+
+    document.getElementById(
+        "total"
+    ).innerHTML =
+
+    "合計：" +
+    total.toLocaleString() +
+    "円";
+
 }
 
 </script>
