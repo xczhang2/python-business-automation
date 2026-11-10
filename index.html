@@ -351,34 +351,6 @@ function clearTasks() {
     showTasks();
 }
 
-let payments = [];
-
-function addPayment() {
-
-    let vendor =
-        document.getElementById(
-            "vendor"
-        ).value;
-
-    let amount =
-        Number(
-            document.getElementById(
-                "amount"
-            ).value
-        );
-
-    payments.push({
-
-        vendor: vendor,
-
-        amount: amount
-
-    });
-
-    showPayments();
-
-}
-
     let payments = [
 
     {
