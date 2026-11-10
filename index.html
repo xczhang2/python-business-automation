@@ -383,6 +383,16 @@
         let reader =
             new FileReader();
 
+    if(!file){
+
+        alert(
+          "ファイルを選択してください"
+        );
+
+        return;
+
+    }
+
         reader.onload =
         function(e){
 
