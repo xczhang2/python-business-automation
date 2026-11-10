@@ -134,12 +134,19 @@
     </div>
 
     <div class="card">
-     <input
+     
+    <input
         type="file"
         id="csvFile">
-     <button onclick="loadCSV()">
+     
+    <button onclick="loadCSV()">
      CSV読込
      </button>
+    
+    <button onclick="clearPayments()">
+    全削除
+    </button>
+    
     </div>
 
     <div class="card">
@@ -204,6 +211,18 @@
 
     let payments = [];
 
+    window.onload = function(){
+
+        loadPayments();
+
+        showPayments();
+
+        updateSummary();
+
+        showChart();
+
+    };
+
     function addPayment(){
 
         let vendor =
@@ -257,6 +276,24 @@
         updateSummary();
 
         showChart();
+    }
+
+    function savePayments(){
+
+        localStorage.setItem(
+            "payments",
+            JSON.stringify(payments)
+        );
+    }
+
+    function loadPayments(){
+
+        payments =
+            JSON.parse(
+                localStorage.getItem(
+                    "payments"
+                )
+            ) || [];
     }
 
     function showPayments(){
@@ -436,6 +473,19 @@
 
         reader.readAsText(file);
 
+    }
+
+    function clearPayments(){
+
+        payments = [];
+
+        savePayments();
+
+        showPayments();
+
+        updateSummary();
+
+        showChart();
     }
 
 </script>
