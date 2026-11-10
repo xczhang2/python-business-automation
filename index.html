@@ -386,11 +386,16 @@
         reader.onload =
         function(e){
 
+        let lines =
+            e.target.result
+             .split("\n");
+
             console.log(
-                e.target.result
+                lines
             );
 
         };
+
 
         reader.readAsText(file);
 
