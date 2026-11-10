@@ -379,55 +379,6 @@ function addPayment() {
 
 }
 
-function showPayments() {
-
-    let html = "";
-
-    for(let payment of payments) {
-
-        html += `
-        <tr>
-
-            <td>${payment.vendor}</td>
-
-            <td>
-            ${payment.amount.toLocaleString()}
-            </td>
-
-        </tr>
-        `;
-    }
-
-    document.getElementById(
-        "paymentTable"
-    ).innerHTML = html;
-    
-    let total = 0;
-
-    for(let payment of payments) {
-
-        total += payment.amount;
-
-    }
-
-    document.getElementById(
-        "total"
-    ).innerHTML =
-
-    "合計：" +
-    total.toLocaleString() +
-    "円";
-
-    document.getElementById(
-        "count"
-    ).innerHTML =
-
-    "件数：" +
-    payments.length +
-    "件";
-
-}
-
     let payments = [
 
     {
