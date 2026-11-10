@@ -7,7 +7,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>宇宙67 Portfolio</title>
+    <title>支払予定管理ダッシュボード</title>
 
     <style>
 
@@ -79,33 +79,69 @@
             color: #666666;
         }
 
+    .kpi{
+
+        font-size:20px;
+
+        font-weight:bold;
+
+        color:#003366;
+    }
+
     </style>
 </head>
 
 <body>
 
-<div class="container">
+    <div class="container">
+
+    <h1>支払予定管理ダッシュボード</h1>
+
+    <div class="card">
+
+    <h2>支払登録</h2>
 
     <input
     type="text"
-    id="search"
-    placeholder="取引先検索">
+    id="vendor"
+    placeholder="取引先">
 
-    <button onclick="searchPayment()">
-    検索
+    <input
+    type="number"
+    id="amount"
+    placeholder="支払額">
+
+    <button onclick="addPayment()">
+    追加
     </button>
 
-    <button onclick="highAmount()">
+    </div>
 
-    10万円以上
+    <div class="card">
 
-    </button>
+    <h2>KPI</h2>
 
-    <button onclick="showAll()">
+    <p class="kpi" id="totalAmount">
+    総支払額：0円
+    </p>
 
-    全件表示
+    <p class="kpi" id="count">
+    件数：0件
+    </p>
 
-    </button>
+    <p class="kpi" id="maxVendor">
+    最大支払先：
+    </p>
+
+    <p class="kpi" id="avgAmount">
+    平均支払額：
+    </p>
+
+    </div>
+
+    <div class="card">
+
+    <h2>支払予定一覧</h2>
 
     <table>
 
@@ -126,209 +162,98 @@
     </tbody>
 
     </table>
-    
-    <button onclick="profile()">
 
-    自己紹介を見る
-
-    </button>
-
-    <p id="skill">
-    未表示
-    </p>
-
-    <button onclick="showSkill()">
-
-    スキル表示
-
-    </button>
-
-    <div class="card">
-        <h2>作成したツール</h2>
-
-        <ul>
-            <li>AP管理ツール</li>
-            <li>支払予定表作成ツール</li>
-            <li>AI経理業務アシスタント</li>
-            <li>Excel自動化ツール</li>
-            <li>売上分析ダッシュボード</li>
-        </ul>
-    </div>
-
-
-    <div class="card">
-        <h2>スキルレベル</h2>
-
-        <table>
-
-            <tr>
-                <th>技術</th>
-                <th>レベル</th>
-            </tr>
-
-            <tr>
-                <td>Python</td>
-                <td>初級〜中級</td>
-            </tr>
-
-            <tr>
-                <td>SQL</td>
-                <td>初級〜中級</td>
-            </tr>
-
-            <tr>
-                <td>Git/GitHub</td>
-                <td>初級</td>
-            </tr>
-
-            <tr>
-                <td>Streamlit</td>
-                <td>初級</td>
-            </tr>
-
-        </table>
-    </div>
-
-
-    <div class="card">
-        <h2>今後の学習</h2>
-
-        <ul>
-            <li>Power Automate</li>
-            <li>Azure OpenAI</li>
-            <li>LangChain</li>
-            <li>AI Agent</li>
-        </ul>
-    </div>
-
+    </div>    
 
     <div class="card">
 
-        <h2>GitHub</h2>
+    <h2>支払額グラフ</h2>
 
-        <a href="https://github.com/xczhang2"
-           class="btn"
-           target="_blank">
-
-            GitHubプロフィール
-
-        </a>
+    <div id="chart"></div>
 
     </div>
-
-
-    <footer>
-
-        <p>
-            © 2026 宇宙67 Portfolio
-        </p>
-
-    </footer>
 
 </div>
 
-</body>
-
 <script>
 
-function hello() {
+    let payments = [];
 
-    alert("こんにちは！");
+    function addPayment(){
 
-}
-
-function profile() {
-
-    alert("本社勤務 / Python学習中");
-
-}
-
-function changeMessage() {
-
-    document.getElementById(
-        "message"
-    ).innerHTML =
-    "ありがとうございます！";
-
-}
-
-function showSkill() {
-
-    document.getElementById(
-        "skill"
-    ).innerHTML =
-    "Python / SQL / Git";
-
-}
-
-    let payments = [
-
-    {
-        vendor:"A社",
-        amount:100000
-    },
-
-    {
-        vendor:"B社",
-        amount:200000
-    },
-
-    {
-        vendor:"C社",
-        amount:50000
-    }
-
-    ];
-
-    function searchPayment() {
-
-        let keyword =
+        let vendor =
             document.getElementById(
-               "search"
+                "vendor"
             ).value;
 
-        let result =
-            payments.filter(
-                payment =>
-                payment.vendor.includes(
-                    keyword
-                )
+        let amount =
+            Number(
+                document.getElementById(
+                    "amount"
+                ).value
             );
 
-        showPayments(result);
+        if(vendor === ""){
+
+            alert(
+                "取引先を入力してください"
+            );
+
+            return;
+        }
+
+        if(amount <= 0){
+
+            alert(
+                "金額を入力してください"
+            );
+
+            return;
+        }
+
+        payments.push({
+
+            vendor:vendor,
+
+            amount:amount
+
+        });
+
+        document.getElementById(
+            "vendor"
+        ).value = "";
+
+        document.getElementById(
+            "amount"
+        ).value = "";
+
+        showPayments();
+
+        updateSummary();
+
+        showChart();
     }
 
-    function showPayments(list) {
+    function showPayments(){
 
         let html = "";
 
-    if(list.length == 0) {
-
-        html =
-          "<tr><td colspan='2'>"
-          +
-          "該当なし"
-          +
-          "</td></tr>";
-    }
-
-    list.sort(
-     (a,b) =>
-     b.amount - a.amount
-    );
-        for(let payment of list) {
+        for(let payment of payments){
 
             html += `
+
             <tr>
 
-                <td>${payment.vendor}</td>
+                <td>
+                    ${payment.vendor}
+                </td>
 
                 <td>
-                  ${payment.amount
-                    .toLocaleString()}
+                    ${payment.amount.toLocaleString()}円
                 </td>
 
             </tr>
+
             `;
         }
 
@@ -337,24 +262,93 @@ function showSkill() {
         ).innerHTML = html;
     }
 
-    function highAmount() {
+    function updateSummary(){
 
-        let result =
-            payments.filter(
-                payment =>
-                payment.amount >= 100000
-            );
+        if(payments.length === 0){
 
-        showPayments(result);
+            return;
+        }
+
+        let total = 0;
+
+        let maxPayment =
+            payments[0];
+
+        for(let payment of payments){
+
+            total += payment.amount;
+
+            if(
+                payment.amount >
+                maxPayment.amount
+            ){
+
+                maxPayment =
+                    payment;
+            }
+        }
+
+        let avg =
+            total / payments.length;
+
+        document.getElementById(
+            "totalAmount"
+        ).innerHTML =
+            "総支払額：" +
+            total.toLocaleString() +
+            "円";
+
+        document.getElementById(
+            "count"
+        ).innerHTML =
+            "件数：" +
+            payments.length +
+            "件";
+
+        document.getElementById(
+            "maxVendor"
+        ).innerHTML =
+            "最大支払先：" +
+            maxPayment.vendor;
+
+        document.getElementById(
+            "avgAmount"
+        ).innerHTML =
+            "平均支払額：" +
+            avg.toLocaleString() +
+            "円";
     }
 
-    function showAll() {
+    function showChart(){
 
-        showPayments(
-            payments
-        );
+        let html = "";
 
+        for(let payment of payments){
+
+            html += `
+
+            <p>
+            ${payment.vendor}
+            </p>
+
+            <div
+            class="bar"
+            style="
+            width:${payment.amount / 1000}px">
+
+            ${payment.amount.toLocaleString()}円
+
+            </div>
+
+            `;
+        }
+
+        document.getElementById(
+            "chart"
+        ).innerHTML = html;
     }
 
 </script>
+
+</body>
 </html>
