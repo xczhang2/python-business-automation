@@ -101,19 +101,9 @@
 
     </button>
 
-    <input
-     type="text"
-     id="vendor"
-     placeholder="取引先">
+    <button onclick="showAll()">
 
-    <input
-     type="number"
-     id="amount"
-     placeholder="支払額">
-
-    <button onclick="addPayment()">
-
-    追加
+    全件表示
 
     </button>
 
@@ -137,63 +127,9 @@
 
     </table>
     
-    <p id="total"></p>
-
-    <p id="count"></p>
-    
-    <input
-    type="text"
-    id="task">
-
-    <button onclick="addTask()">
-    追加
-    </button>
-
-    <button onclick="clearTasks()">
-    全削除
-    </button>
-
-    <ul id="taskList"></ul>
-
-    <div class="card">
-
-    <h2>名前入力</h2>
-
-    <input
-        type="text"
-        id="name">
-
-    </div>
-
-    <p id="result"></p>
-
-    <button onclick="greet()">
-
-    挨拶する
-
-    </button>
-
-    <button onclick="hello()">
-
-    クリックしてください
-
-    </button>
-
     <button onclick="profile()">
 
     自己紹介を見る
-
-    </button>
-
-    <p id="message">
-
-    ボタンを押してください
-
-    </p>
- 
-    <button onclick="changeMessage()">
-
-    メッセージ変更
 
     </button>
 
@@ -533,6 +469,16 @@ function showPayments() {
 
         let html = "";
 
+    if(result.length == 0) {
+
+        html =
+          "<tr><td colspan='2'>"
+          +
+          "該当なし"
+          +
+          "</td></tr>";
+    }
+
         for(let payment of list) {
 
             html += `
@@ -563,6 +509,14 @@ function showPayments() {
             );
 
         showPayments(result);
+    }
+
+    function showAll() {
+
+        showPayments(
+            payments
+        );
+
     }
 
 </script>
