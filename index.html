@@ -134,6 +134,15 @@
     </div>
 
     <div class="card">
+     <input
+        type="file"
+        id="csvFile">
+     <button onclick="loadCSV()">
+     CSV読込
+     </button>
+    </div>
+
+    <div class="card">
 
     <h2>KPI</h2>
 
@@ -362,6 +371,29 @@
         document.getElementById(
             "chart"
         ).innerHTML = html;
+    }
+
+    function loadCSV() {
+
+        let file =
+            document.getElementById(
+                "csvFile"
+            ).files[0];
+
+        let reader =
+            new FileReader();
+
+        reader.onload =
+        function(e){
+
+            console.log(
+                e.target.result
+            );
+
+        };
+
+        reader.readAsText(file);
+
     }
 
 </script>
