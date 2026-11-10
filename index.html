@@ -87,6 +87,21 @@
 <div class="container">
 
     <input
+    type="text"
+    id="search"
+    placeholder="取引先検索">
+
+    <button onclick="searchPayment()">
+    検索
+    </button>
+
+    <button onclick="highAmount()">
+
+    10万円以上
+
+    </button>
+
+    <input
      type="text"
      id="vendor"
      placeholder="取引先">
@@ -124,6 +139,8 @@
     
     <p id="total"></p>
 
+    <p id="count"></p>
+    
     <input
     type="text"
     id="task">
@@ -465,7 +482,88 @@ function showPayments() {
     total.toLocaleString() +
     "円";
 
+    document.getElementById(
+        "count"
+    ).innerHTML =
+
+    "件数：" +
+    payments.length +
+    "件";
+
 }
+
+    let payments = [
+
+    {
+        vendor:"A社",
+        amount:100000
+    },
+
+    {
+        vendor:"B社",
+        amount:200000
+    },
+
+    {
+        vendor:"C社",
+        amount:50000
+    }
+
+    ];
+
+    function searchPayment() {
+
+        let keyword =
+            document.getElementById(
+               "search"
+            ).value;
+
+        let result =
+            payments.filter(
+                payment =>
+                payment.vendor.includes(
+                    keyword
+                )
+            );
+
+        showPayments(result);
+    }
+
+    function showPayments(list) {
+
+        let html = "";
+
+        for(let payment of list) {
+
+            html += `
+            <tr>
+
+                <td>${payment.vendor}</td>
+
+                <td>
+                  ${payment.amount
+                    .toLocaleString()}
+                </td>
+
+            </tr>
+            `;
+        }
+
+        document.getElementById(
+            "paymentTable"
+        ).innerHTML = html;
+    }
+
+    function highAmount() {
+
+        let result =
+            payments.filter(
+                payment =>
+                payment.amount >= 100000
+            );
+
+        showPayments(result);
+    }
 
 </script>
 </html>
