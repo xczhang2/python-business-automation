@@ -138,136 +138,91 @@
     </div>
 
     <div class="card">
-
-    <h2>支払登録</h2>
-
-    <input
-    type="text"
-    id="vendor"
-    placeholder="取引先">
-
-    <input
-    type="number"
+ 
+    <h2>支払予定登録</h2>
+ 
+     <input type="text"
+     id="vendor"
+     placeholder="取引先">
+ 
+     <input type="date"
+     id="date">
+ 
+     <select id="currency">
+ 
+     <option>JPY</option>
+     <option>USD</option>
+     <option>CNY</option>
+ 
+     </select>
+ 
+    <input type="number"
     id="amount"
     placeholder="支払額">
-
+ 
     <button onclick="addPayment()">
-    追加
+    登録
     </button>
-
+ 
     </div>
-
+ 
     <div class="card">
-     
-    <h2>CSV取込</h2>
-
-    <input
-        type="file"
-        id="csvFile">
-     
-    <button onclick="loadCSV()">
-     CSV読込
-     </button>
-    
-    <button onclick="clearPayments()">
-    全削除
-    </button>
-    
-    </div>
-
-    <div class="card">
-
-        <h2>取込結果</h2>
-
-        <p id="validCount">
-            正常件数：0件
-        </p>
-
-        <p id="errorCount">
-            エラー件数：0件
-        </p>
-
-    </div>
-
-    <div class="card">
-
-        <h2>エラー一覧</h2>
-
-        <div id="errorList">
-
-        </div>
-
-    </div>
-
-    <div class="card">
-
+ 
     <h2>KPI</h2>
-
-    <p class="kpi" id="totalAmount">
-    総支払額：0円
-    </p>
-
-    <p class="kpi" id="count">
-    件数：0件
-    </p>
-
-    <p class="kpi" id="maxVendor">
-    最大支払先：
-    </p>
-
-    <p class="kpi" id="avgAmount">
-    平均支払額：
-    </p>
-
-    <p class="kpi" id="maxAmount">
-    </p>
-
-    <p class="kpi" id="minAmount">
-    </p>
-
+ 
+    <p id="totalAmount"></p>
+ 
+    <p id="count"></p>
+ 
+    <p id="maxVendor"></p>
+ 
+    <p id="avgAmount"></p>
+ 
     </div>
-
+ 
     <div class="card">
-
+ 
+    <h2>通貨別集計</h2>
+ 
+    <div id="currencySummary"></div>
+ 
+    </div>
+ 
+    <div class="card">
+ 
+    <h2>支払ランキング TOP3</h2>
+ 
+    <div id="top3"></div>
+ 
+    </div>
+ 
+    <div class="card">
+ 
     <h2>支払予定一覧</h2>
-
+ 
     <table>
-
+ 
     <thead>
-
+ 
     <tr>
-
+ 
     <th>順位</th>
-
     <th>取引先</th>
-
+    <th>支払日</th>
+    <th>通貨</th>
     <th>支払額</th>
-
+ 
     </tr>
-
+ 
     </thead>
-
+ 
     <tbody id="paymentTable">
-
+ 
     </tbody>
-
+ 
     </table>
-
-    </div>    
-
-    <div class="card">
-
-    <h2>支払額グラフ</h2>
-
-    <div id="chart"></div>
-
+ 
     </div>
-
-    <button onclick="exportCSV()">
-
-    CSV出力
-
-    </button>
 
 </div>
 
@@ -275,25 +230,21 @@
 
     let payments = [];
 
-    let errors = [];
-
-    window.onload = function(){
-
-        loadPayments();
-
-        showPayments();
-
-        updateSummary();
-
-        showChart();
-
-    };
-
     function addPayment(){
 
         let vendor =
             document.getElementById(
                 "vendor"
+            ).value;
+
+        let date =
+            document.getElementById(
+                "date"
+            ).value;
+
+        let currency =
+            document.getElementById(
+                "currency"
             ).value;
 
         let amount =
@@ -305,43 +256,31 @@
 
         if(vendor === ""){
 
-            alert(
-                "取引先を入力してください"
-            );
-
-            return;
-        }
-
-        if(amount <= 0){
-
-            alert(
-                "金額を入力してください"
-            );
+            alert("取引先を入力してください");
 
             return;
         }
 
         payments.push({
 
-            vendor:vendor,
+            vendor : vendor,
 
-            amount:amount
+            date : date,
+
+            currency : currency,
+
+            amount : amount
 
         });
-
-        document.getElementById(
-            "vendor"
-        ).value = "";
-
-        document.getElementById(
-            "amount"
-        ).value = "";
 
         showPayments();
 
         updateSummary();
 
-        showChart();
+        showCurrencySummary();
+
+        showTop3();
+    
     }
 
     function savePayments(){
@@ -366,37 +305,52 @@
 
         let html = "";
 
-        let rank = 1;
+    	let sorted =
 
-        for(let payment of payments){
+        	[...payments]
 
-            html += `
+        	.sort(
 
-            <tr>
+            	(a,b) =>
 
-                <td>
-                ${rank}
-                </td>
+            	b.amount -
+            	a.amount
 
-                <td>
-                    ${payment.vendor}
-                </td>
+        	);
 
-                <td>
-                    ${payment.amount.toLocaleString()}円
-                </td>
+    	let rank = 1;
 
-            </tr>
+    	for(let payment of sorted){
 
-            `;
+        	html += `
 
-            rank++;
+        	<tr>
 
-        }
+        	<td>${rank}</td>
 
-        document.getElementById(
-            "paymentTable"
-        ).innerHTML = html;
+        	<td>${payment.vendor}</td>
+
+        	<td>${payment.date}</td>
+
+        	<td>${payment.currency}</td>
+
+        	<td>
+
+        	${payment.amount.toLocaleString()}円
+
+        	</td>
+
+        	</tr>
+
+        	`;
+
+        	rank++;
+    	}
+
+    	document.getElementById(
+        	"paymentTable"
+    	).innerHTML = html;
+
     }
 
     function updateSummary(){
@@ -421,43 +375,56 @@
             ){
 
                 maxPayment =
-                    payment;
+                payment;
             }
         }
 
-        let avg = Math.round(
-            total / payments.length);
+        let avg =
+
+            Math.round(
+
+                total /
+                payments.length
+
+            );
 
         document.getElementById(
             "totalAmount"
         ).innerHTML =
-            "総支払額：" +
-            total.toLocaleString() +
-            "円";
+
+        "総支払額 : " +
+
+        total.toLocaleString() +
+
+        "円";
 
         document.getElementById(
             "count"
         ).innerHTML =
-            "件数：" +
-            payments.length +
-            "件";
+
+        "件数 : " +
+
+        payments.length +
+
+        "件";
 
         document.getElementById(
             "maxVendor"
         ).innerHTML =
-            "最大支払先：" +
-            maxPayment.vendor;
+
+        "最大支払先 : " +
+
+        maxPayment.vendor;
 
         document.getElementById(
             "avgAmount"
         ).innerHTML =
-            "平均支払額：" +
-            avg.toLocaleString() +
-            "円";
 
-        showMaxAmount();
-        showMinAmount();
+        "平均支払額 : " +
 
+        avg.toLocaleString() +
+
+        "円";
     }
 
     function showChart(){
@@ -780,24 +747,69 @@
 
     function showTop3(){
 
-        let result =
+        let top3 =
 
             [...payments]
 
             .sort(
 
-                (a,b) =>
+                (a,b)=>
 
                 b.amount -
                 a.amount
 
             )
 
-           .slice(0,3);
+            .slice(0,3);
 
-        showFiltered(
-            result
-        );
+        let medals =
+
+            ["🥇","🥈","🥉"];
+
+        let html = "";
+
+        for(
+            let i = 0;
+            i < top3.length;
+            i++
+        ){
+
+            html += `
+
+            <div>
+
+            <h3>
+
+            ${medals[i]}
+
+            ${i + 1}位
+
+            </h3>
+
+            <p>
+
+            ${top3[i].vendor}
+
+            </p>
+
+            <p>
+
+            ${top3[i].amount
+                .toLocaleString()}円
+
+            </p>
+
+            </div>
+
+            <hr>
+
+            `;
+        }
+
+        document.getElementById(
+            "top3"
+        ).innerHTML = html;
+    
     }
 
     function showFiltered(list){
@@ -892,6 +904,53 @@
             min.toLocaleString() +
 
             "円";
+    }
+
+    function showCurrencySummary(){
+
+        let totals = {};
+
+        for(let payment of payments){
+
+            if(
+                !totals[
+                    payment.currency
+                ]
+            ){
+
+                totals[
+                    payment.currency
+                ] = 0;
+            }
+
+            totals[
+                payment.currency
+            ] += payment.amount;
+        }
+
+        let html = "";
+
+        for(let currency in totals){
+
+            html += `
+
+            <p>
+
+            ${currency}
+
+            :
+
+            ${totals[currency]
+               .toLocaleString()}
+
+            </p>
+
+            `;
+        }
+
+        document.getElementById(
+            "currencySummary"
+        ).innerHTML = html;
     }
 
 </script>
