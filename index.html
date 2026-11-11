@@ -344,9 +344,11 @@
 
     	let rank = 1;
 
-    	for(let payment of sorted){
+    	for(let i = 0; i < payments.length; i++){
 
-        	html += `
+    		let payment = payments[i];
+        	
+		html += `
 
         	<tr>
 
