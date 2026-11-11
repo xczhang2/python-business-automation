@@ -1,0 +1,5 @@
+https://xczhang2.github.io/python-business-automation/
+
+git add .
+git commit -m "Day31 CRUD機能追加"
+git push origin main

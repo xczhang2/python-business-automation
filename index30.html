@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>支払予定管理アプリ Ver8.0</title>
+
+    <style>
+
+        body {
+            background-color: #eaf4ff;
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #003366;
+        }
+
+        h2 {
+            color: green;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #cccccc;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: scale(1.02);
+        }
+
+        .btn {
+            display: inline-block;
+            background: #003366;
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: #0055aa;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #cccccc;
+            padding: 10px;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            color: #666666;
+        }
+
+    .kpi{
+
+        font-size:20px;
+
+        font-weight:bold;
+
+        color:#003366;
+    }
+
+    .bar {
+
+        height: 25px;
+
+        background: steelblue;
+
+        margin-bottom: 5px;
+
+        color: white;
+
+        padding-left: 10px;
+
+        line-height: 25px;
+
+    }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+    <h1>支払予定管理アプリ Ver8.0</h1>
+
+    <div class="card">
+
+    <button onclick="sortDesc()">
+    金額降順
+    </button>
+
+    <button onclick="sortAsc()">
+    金額昇順
+    </button>
+
+    <button onclick="sortVendor()">
+    取引先順
+    </button>
+
+    <button onclick="showTop3()">
+    TOP3
+    </button>
+
+    <button onclick="showPayments()">
+    全件表示
+    </button>
+
+    </div>
+
+    <div class="card">
+ 
+    <h2>支払予定登録</h2>
+ 
+     <input type="text"
+     id="vendor"
+     placeholder="取引先">
+ 
+     <input type="date"
+     id="date">
+ 
+     <select id="currency">
+ 
+     <option>JPY</option>
+     <option>USD</option>
+     <option>CNY</option>
+ 
+     </select>
+ 
+    <input type="number"
+    id="amount"
+    placeholder="支払額">
+ 
+    <button onclick="addPayment()">
+    登録
+    </button>
+ 
+    </div>
+ 
+    <div class="card">
+ 
+    <h2>KPI</h2>
+ 
+    <p id="totalAmount"></p>
+ 
+    <p id="count"></p>
+ 
+    <p id="maxVendor"></p>
+ 
+    <p id="avgAmount"></p>
+ 
+    </div>
+ 
+    <div class="card">
+ 
+    <h2>通貨別集計</h2>
+ 
+    <div id="currencySummary"></div>
+ 
+    </div>
+ 
+    <div class="card">
+ 
+    <h2>支払ランキング TOP3</h2>
+ 
+    <div id="top3"></div>
+ 
+    </div>
+ 
+    <div class="card">
+ 
+    <h2>支払予定一覧</h2>
+ 
+    <table>
+ 
+    <thead>
+ 
+    <tr>
+ 
+    <th>順位</th>
+    <th>取引先</th>
+    <th>支払日</th>
+    <th>通貨</th>
+    <th>支払額</th>
+ 
+    </tr>
+ 
+    </thead>
+ 
+    <tbody id="paymentTable">
+ 
+    </tbody>
+ 
+    </table>
+ 
+    </div>
+
+</div>
+
+<script>
+
+    let payments = [];
+
+    const rates = {
+
+       JPY : 1,
+
+       USD : 150,
+
+       CNY : 20
+
+    };
+
+    function addPayment(){
+
+        let vendor =
+            document.getElementById(
+                "vendor"
+            ).value;
+
+        let date =
+            document.getElementById(
+                "date"
+            ).value;
+
+        let currency =
+            document.getElementById(
+                "currency"
+            ).value;
+
+        let amount =
+            Number(
+                document.getElementById(
+                    "amount"
+                ).value
+            );
+
+        if(vendor === ""){
+
+            alert("取引先を入力してください");
+
+            return;
+        }
+
+        payments.push({
+
+            vendor : vendor,
+
+            date : date,
+
+            currency : currency,
+
+            amount : amount
+
+        });
+
+        showPayments();
+
+        updateSummary();
+
+        showCurrencySummary();
+
+        showTop3();
+    
+    }
+
+    function savePayments(){
+
+        localStorage.setItem(
+            "payments",
+            JSON.stringify(payments)
+        );
+    }
+
+    function loadPayments(){
+
+        payments =
+            JSON.parse(
+                localStorage.getItem(
+                    "payments"
+                )
+            ) || [];
+    }
+
+    function showPayments(){
+
+        let html = "";
+
+    	let sorted =
+
+        	[...payments]
+
+        	.sort(
+
+            	(a,b) =>
+
+            	b.amount -
+            	a.amount
+
+        	);
+
+    	let rank = 1;
+
+    	for(let payment of sorted){
+
+        	html += `
+
+        	<tr>
+
+        	<td>${rank}</td>
+
+        	<td>${payment.vendor}</td>
+
+        	<td>${payment.date}</td>
+
+        	<td>${payment.currency}</td>
+
+        	<td>
+
+        	${payment.amount.toLocaleString()}円
+
+        	</td>
+
+        	</tr>
+
+        	`;
+
+        	rank++;
+    	}
+
+    	document.getElementById(
+        	"paymentTable"
+    	).innerHTML = html;
+
+    }
+
+    function updateSummary(){
+
+        if(payments.length === 0){
+
+            return;
+        }
+
+        let total = 0;
+
+        let maxPayment =
+            payments[0];
+
+        for(let payment of payments){
+
+            total += payment.amount *
+
+            rates[payment.currency];
+
+            if(
+                payment.amount *
+
+                rates[payment.currency] >
+                maxPayment.amount
+            ){
+
+                maxPayment =
+                payment;
+            }
+        }
+
+        let avg =
+
+            Math.round(
+
+                total /
+                payments.length
+
+            );
+
+        document.getElementById(
+            "totalAmount"
+        ).innerHTML =
+
+        "総支払額 : " +
+
+        total.toLocaleString() +
+
+        "円";
+
+        document.getElementById(
+            "count"
+        ).innerHTML =
+
+        "件数 : " +
+
+        payments.length +
+
+        "件";
+
+        document.getElementById(
+            "maxVendor"
+        ).innerHTML =
+
+        "最大支払先 : " +
+
+        maxPayment.vendor;
+
+        document.getElementById(
+            "avgAmount"
+        ).innerHTML =
+
+        "平均支払額 : " +
+
+        avg.toLocaleString() +
+
+        "円";
+    }
+
+    function showChart(){
+
+        let html = "";
+
+        for(let payment of payments){
+
+            html += `
+
+            <p>
+            ${payment.vendor}
+            </p>
+
+            <div
+            class="bar"
+            style="
+            width:${payment.amount / 1000}px">
+
+            ${payment.amount.toLocaleString()}円
+
+            </div>
+
+            `;
+        }
+
+        console.log(html);
+
+        document.getElementById(
+            "chart"
+        ).innerHTML = html;
+    }
+
+    function loadCSV() {
+
+        let file =
+            document.getElementById(
+                "csvFile"
+            ).files[0];
+
+        if(!file){
+
+            alert(
+              "ファイルを選択してください"
+            );
+
+            return;
+
+        }
+
+        let reader =
+            new FileReader();
+
+        reader.onload =
+        function(e){
+
+            let lines =
+                e.target.result
+                    .trim()
+                    .split("\n");
+
+            payments = [];
+
+            errors = [];
+
+            for(
+              let i = 1;
+              i < lines.length;
+              i++
+             ){
+
+               let cols =
+                  lines[i]
+                 .split(",");
+
+               if(cols.length < 2){
+
+                 continue;
+
+                }
+
+                let vendor =
+                cols[0].trim();
+
+            let amountText =
+                cols[1].trim();
+
+            if(vendor == ""){
+
+                errors.push(
+                    "取引先未入力 : 行 " + i
+                );
+
+                continue;
+            }
+
+            if(amountText == ""){
+
+                errors.push(
+                    "金額未入力 : " +
+                    vendor
+                );
+
+                continue;
+            }
+
+            let amount =
+                Number(amountText);
+
+            if(isNaN(amount)){
+
+                errors.push(
+                    "数値エラー : " +
+                    vendor
+                );
+
+                continue;
+            }
+
+            if(amount <= 0){
+
+                errors.push(
+                    "金額エラー : " +
+                    vendor
+                );
+
+                continue;
+            }
+
+            let exists =
+                payments.some(
+
+                    p =>
+
+                    p.vendor === vendor
+                    &&
+                    p.amount === amount
+
+                );
+
+            if(exists){
+
+                errors.push(
+                    "重複データ : " +
+                    vendor
+                );
+
+                continue;
+            }
+
+            payments.push({
+
+                vendor : vendor,
+
+                amount : amount
+
+            });
+
+        }
+
+        savePayments();
+        
+        showPayments();
+        
+        updateSummary();
+        
+        showChart();
+
+        showErrors();
+        
+        };
+
+        reader.readAsText(
+            file,
+            "UTF-8"
+        );
+
+    }
+
+    function clearPayments(){
+
+        payments = [];
+
+        savePayments();
+
+        showPayments();
+
+        updateSummary();
+
+        showChart();
+    }
+
+    function showErrors(){
+
+        let html = "";
+
+        for(let err of errors){
+
+            html +=
+            "<p style='color:red'>"
+            + err +
+            "</p>";
+        }
+
+        if(errors.length == 0){
+
+            html =
+            "<p style='color:green'>エラーなし</p>";
+        }
+
+        document.getElementById(
+            "errorList"
+        ).innerHTML = html;
+
+        document.getElementById(
+            "validCount"
+        ).innerHTML =
+            "正常件数：" +
+            payments.length +
+            "件";
+
+        document.getElementById(
+            "errorCount"
+        ).innerHTML =
+            "エラー件数：" +
+            errors.length +
+            "件";
+        }
+
+    function exportCSV(){
+
+        let csv =
+            "vendor,amount\n";
+
+        for(let payment of payments){
+
+            csv +=
+
+              payment.vendor +
+
+              "," +
+
+              payment.amount +
+
+              "\n";
+        }
+
+        let bom = "\uFEFF";
+
+        let blob =
+
+          new Blob(
+
+            [bom + csv],
+
+            {type:"text/csv;charset=utf-8;"}
+
+          );
+
+        let link =
+
+          document.createElement(
+            "a"
+          );
+
+        link.href =
+            URL.createObjectURL(
+                blob
+            );
+
+        link.download =
+            "payments.csv";
+
+        link.click();
+    }
+
+    function sortDesc(){
+
+        payments.sort(
+
+            (a,b) =>
+
+            b.amount - a.amount
+
+        );
+
+        showPayments();
+
+    }
+
+    function sortAsc(){
+
+        payments.sort(
+
+            (a,b) =>
+
+            a.amount - b.amount
+
+        );
+
+        showPayments();
+
+    }
+
+    function sortVendor(){
+
+        payments.sort(
+
+            (a,b) =>
+
+            a.vendor.localeCompare(
+                b.vendor
+            )
+
+        );
+
+        showPayments();
+
+    }
+
+    function showTop3(){
+
+        console.log(payments);
+
+        let top3 =
+
+            [...payments]
+
+            .sort(
+
+                (a,b)=>
+
+                b.amount * rates[b.currency] -
+                a.amount * rates[a.currency]
+
+            )
+
+            .slice(0,3);
+
+        console.log(top3);
+    
+        let medals =
+
+            ["🥇","🥈","🥉"];
+
+        let html = "";
+
+        for(
+            let i = 0;
+            i < top3.length;
+            i++
+        ){
+
+            html += `
+
+            <div>
+
+            <h3>
+
+            ${medals[i]}
+
+            ${i + 1}位
+
+            </h3>
+
+            <p>
+
+            ${top3[i].vendor}
+
+            </p>
+
+            <p>
+
+            ${top3[i].amount
+                .toLocaleString()} ${top3[i].currency}
+
+            </p>
+
+            </div>
+
+            <hr>
+
+            `;
+        }
+
+        document.getElementById(
+            "top3"
+        ).innerHTML = html;
+
+    }
+
+    function showFiltered(list){
+
+        let html = "";
+
+        let rank = 1;
+
+        for(let payment of list){
+
+            html += `
+
+            <tr>
+
+            <td>${rank}</td>
+
+            <td>${payment.vendor}</td>
+
+            <td>
+            ${payment.amount
+               .toLocaleString()}円
+            </td>
+
+            </tr>
+
+            `;
+
+            rank++;
+
+        }
+
+        document.getElementById(
+            "paymentTable"
+        ).innerHTML = html;
+    }
+
+    function showMaxAmount(){
+
+        if(payments.length === 0){
+
+            return;
+        }
+
+        let max =
+
+            Math.max(
+
+                ...payments.map(
+
+                   p => p.amount
+
+                )
+
+            );
+
+         document.getElementById(
+            "maxAmount"
+        ).innerHTML =
+
+            "最大支払額：" +
+
+            max.toLocaleString() +
+
+            "円";
+    }
+
+    function showMinAmount(){
+
+        if(payments.length === 0){
+
+            return;
+        }
+
+        let min =
+
+            Math.min(
+
+                ...payments.map(
+
+                    p => p.amount
+
+                )
+
+            );
+
+        document.getElementById(
+            "minAmount"
+        ).innerHTML =
+
+            "最小支払額：" +
+
+            min.toLocaleString() +
+
+            "円";
+    }
+
+    function showCurrencySummary(){
+
+        let totals = {};
+
+        for(let payment of payments){
+
+            if(
+                !totals[
+                    payment.currency
+                ]
+            ){
+
+                totals[
+                    payment.currency
+                ] = 0;
+            }
+
+            totals[
+                payment.currency
+            ] += payment.amount;
+        }
+
+        let html = "";
+
+        for(let currency in totals){
+
+            html += `
+
+            <p>
+
+            ${currency}
+
+            :
+
+            ${totals[currency]
+               .toLocaleString()}
+
+            </p>
+
+            `;
+        }
+
+        document.getElementById(
+            "currencySummary"
+        ).innerHTML = html;
+    }
+
+</script>
+
+</body>
+</html>

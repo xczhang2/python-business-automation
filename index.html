@@ -7,7 +7,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>支払予定管理アプリ Ver8.0</title>
+    <title>支払予定管理システム Ver1.1</title>
 
     <style>
 
@@ -111,7 +111,19 @@
 
     <div class="container">
 
-    <h1>支払予定管理アプリ Ver8.0</h1>
+    <h1>支払予定管理システム Ver1.1</h1>
+
+    <p id="mode">
+
+    登録モード
+
+    </p>
+
+    <button onclick="updatePayment()">
+
+    更新
+
+    </button>
 
     <div class="card">
 
@@ -211,7 +223,9 @@
     <th>支払日</th>
     <th>通貨</th>
     <th>支払額</th>
- 
+    <th>編集</th>
+    <th>削除</th>
+    
     </tr>
  
     </thead>
@@ -350,7 +364,28 @@
 
         	</td>
 
-        	</tr>
+        	<td>
+
+                <button onclick="editPayment(${i})">
+
+		編集
+
+		</button>
+
+		</td>
+
+		<td>
+
+                <button
+                onclick="deletePayment(${i})">
+
+                削除
+
+                </button>
+
+            	</td>
+
+		</tr>
 
         	`;
 
@@ -620,16 +655,32 @@
 
     function clearPayments(){
 
-        payments = [];
+    if(
 
-        savePayments();
+      !confirm(
 
-        showPayments();
+        "全件削除しますか？"
 
-        updateSummary();
+      )
 
-        showChart();
+    ){
+
+        return;
     }
+
+    payments = [];
+
+    localStorage.removeItem(
+        "payments"
+    );
+
+    showPayments();
+
+    updateSummary();
+
+    showTop3();
+
+}
 
     function showErrors(){
 
@@ -970,6 +1021,128 @@
             "currencySummary"
         ).innerHTML = html;
     }
+
+	let editIndex = -1;
+
+	function editPayment(index){
+
+    	let payment = payments[index];
+
+    	document.getElementById(
+        	"vendor"
+    	).value = payment.vendor;
+
+    	document.getElementById(
+        	"date"
+    	).value = payment.date;
+
+    	document.getElementById(
+        	"currency"
+    	).value = payment.currency;
+
+    	document.getElementById(
+        	"amount"
+    	).value = payment.amount;
+
+    	editIndex = index;
+	}
+
+function updatePayment(){
+
+    if(editIndex === -1){
+
+        alert(
+            "編集対象を選択してください"
+        );
+
+        return;
+    }
+
+    payments[editIndex] = {
+
+        vendor :
+            document.getElementById(
+                "vendor"
+            ).value,
+
+        date :
+            document.getElementById(
+                "date"
+            ).value,
+
+        currency :
+            document.getElementById(
+                "currency"
+            ).value,
+
+        amount :
+            Number(
+                document.getElementById(
+                    "amount"
+                ).value
+            )
+    };
+
+    savePayments();
+
+    showPayments();
+
+    updateSummary();
+
+    showTop3();
+
+    editIndex = -1;
+
+    document.getElementById(
+        "mode"
+    ).innerHTML =
+        "登録モード";
+
+    alert("更新しました");
+}
+
+function deletePayment(index){
+
+    let result =
+
+        confirm(
+            "削除しますか？"
+        );
+
+    if(!result){
+
+        return;
+    }
+
+    payments.splice(index,1);
+
+    savePayments();
+
+    showPayments();
+
+    updateSummary();
+
+    showTop3();
+}
+
+function clearForm(){
+
+    document.getElementById(
+        "vendor"
+    ).value = "";
+
+    document.getElementById(
+        "date"
+    ).value = "";
+
+    document.getElementById(
+        "currency"
+    ).value = "JPY";
+
+    document.getElementById(
+        "amount"
+    ).value = "";
+}
 
 </script>
 
