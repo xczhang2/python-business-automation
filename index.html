@@ -7,7 +7,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>支払予定管理ダッシュボード</title>
+    <title>支払予定管理アプリ Ver5.0</title>
 
     <style>
 
@@ -111,7 +111,7 @@
 
     <div class="container">
 
-    <h1>支払予定管理ダッシュボード</h1>
+    <h1>支払予定管理アプリ Ver5.0</h1>
 
     <div class="card">
 
@@ -230,6 +230,12 @@
     <div id="chart"></div>
 
     </div>
+
+    <button onclick="exportCSV()">
+
+    CSV出力
+
+    </button>
 
 </div>
 
@@ -635,6 +641,51 @@
             errors.length +
             "件";
         }
+
+    function exportCSV(){
+
+        let csv =
+            "vendor,amount\n";
+
+        for(let payment of payments){
+
+            csv +=
+
+              payment.vendor +
+
+              "," +
+
+              payment.amount +
+
+              "\n";
+        }
+
+        let blob =
+
+          new Blob(
+
+            [csv],
+
+            {type:"text/csv"}
+
+          );
+
+        let link =
+
+          document.createElement(
+            "a"
+          );
+
+        link.href =
+            URL.createObjectURL(
+                blob
+            );
+
+        link.download =
+            "payments.csv";
+
+        link.click();
+    }
 
 </script>
 

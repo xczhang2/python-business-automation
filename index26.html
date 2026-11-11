@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>支払予定管理アプリ Ver5.0</title>
+
+    <style>
+
+        body {
+            background-color: #eaf4ff;
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #003366;
+        }
+
+        h2 {
+            color: green;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #cccccc;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: scale(1.02);
+        }
+
+        .btn {
+            display: inline-block;
+            background: #003366;
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: #0055aa;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #cccccc;
+            padding: 10px;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            color: #666666;
+        }
+
+    .kpi{
+
+        font-size:20px;
+
+        font-weight:bold;
+
+        color:#003366;
+    }
+
+    .bar {
+
+        height: 25px;
+
+        background: steelblue;
+
+        margin-bottom: 5px;
+
+        color: white;
+
+        padding-left: 10px;
+
+        line-height: 25px;
+
+    }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+    <h1>支払予定管理アプリ Ver5.0</h1>
+
+    <div class="card">
+
+    <h2>支払登録</h2>
+
+    <input
+    type="text"
+    id="vendor"
+    placeholder="取引先">
+
+    <input
+    type="number"
+    id="amount"
+    placeholder="支払額">
+
+    <button onclick="addPayment()">
+    追加
+    </button>
+
+    </div>
+
+    <div class="card">
+     
+    <h2>CSV取込</h2>
+
+    <input
+        type="file"
+        id="csvFile">
+     
+    <button onclick="loadCSV()">
+     CSV読込
+     </button>
+    
+    <button onclick="clearPayments()">
+    全削除
+    </button>
+    
+    </div>
+
+    <div class="card">
+
+        <h2>取込結果</h2>
+
+        <p id="validCount">
+            正常件数：0件
+        </p>
+
+        <p id="errorCount">
+            エラー件数：0件
+        </p>
+
+    </div>
+
+    <div class="card">
+
+        <h2>エラー一覧</h2>
+
+        <div id="errorList">
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+    <h2>KPI</h2>
+
+    <p class="kpi" id="totalAmount">
+    総支払額：0円
+    </p>
+
+    <p class="kpi" id="count">
+    件数：0件
+    </p>
+
+    <p class="kpi" id="maxVendor">
+    最大支払先：
+    </p>
+
+    <p class="kpi" id="avgAmount">
+    平均支払額：
+    </p>
+
+    </div>
+
+    <div class="card">
+
+    <h2>支払予定一覧</h2>
+
+    <table>
+
+    <thead>
+
+    <tr>
+
+    <th>取引先</th>
+
+    <th>支払額</th>
+
+    </tr>
+
+    </thead>
+
+    <tbody id="paymentTable">
+
+    </tbody>
+
+    </table>
+
+    </div>    
+
+    <div class="card">
+
+    <h2>支払額グラフ</h2>
+
+    <div id="chart"></div>
+
+    </div>
+
+</div>
+
+<script>
+
+    let payments = [];
+
+    let errors = [];
+
+    window.onload = function(){
+
+        loadPayments();
+
+        showPayments();
+
+        updateSummary();
+
+        showChart();
+
+    };
+
+    function addPayment(){
+
+        let vendor =
+            document.getElementById(
+                "vendor"
+            ).value;
+
+        let amount =
+            Number(
+                document.getElementById(
+                    "amount"
+                ).value
+            );
+
+        if(vendor === ""){
+
+            alert(
+                "取引先を入力してください"
+            );
+
+            return;
+        }
+
+        if(amount <= 0){
+
+            alert(
+                "金額を入力してください"
+            );
+
+            return;
+        }
+
+        payments.push({
+
+            vendor:vendor,
+
+            amount:amount
+
+        });
+
+        document.getElementById(
+            "vendor"
+        ).value = "";
+
+        document.getElementById(
+            "amount"
+        ).value = "";
+
+        showPayments();
+
+        updateSummary();
+
+        showChart();
+    }
+
+    function savePayments(){
+
+        localStorage.setItem(
+            "payments",
+            JSON.stringify(payments)
+        );
+    }
+
+    function loadPayments(){
+
+        payments =
+            JSON.parse(
+                localStorage.getItem(
+                    "payments"
+                )
+            ) || [];
+    }
+
+    function showPayments(){
+
+        let html = "";
+
+        for(let payment of payments){
+
+            html += `
+
+            <tr>
+
+                <td>
+                    ${payment.vendor}
+                </td>
+
+                <td>
+                    ${payment.amount.toLocaleString()}円
+                </td>
+
+            </tr>
+
+            `;
+        }
+
+        document.getElementById(
+            "paymentTable"
+        ).innerHTML = html;
+    }
+
+    function updateSummary(){
+
+        if(payments.length === 0){
+
+            return;
+        }
+
+        let total = 0;
+
+        let maxPayment =
+            payments[0];
+
+        for(let payment of payments){
+
+            total += payment.amount;
+
+            if(
+                payment.amount >
+                maxPayment.amount
+            ){
+
+                maxPayment =
+                    payment;
+            }
+        }
+
+        let avg = Math.round(
+            total / payments.length);
+
+        document.getElementById(
+            "totalAmount"
+        ).innerHTML =
+            "総支払額：" +
+            total.toLocaleString() +
+            "円";
+
+        document.getElementById(
+            "count"
+        ).innerHTML =
+            "件数：" +
+            payments.length +
+            "件";
+
+        document.getElementById(
+            "maxVendor"
+        ).innerHTML =
+            "最大支払先：" +
+            maxPayment.vendor;
+
+        document.getElementById(
+            "avgAmount"
+        ).innerHTML =
+            "平均支払額：" +
+            avg.toLocaleString() +
+            "円";
+    }
+
+    function showChart(){
+
+        let html = "";
+
+        for(let payment of payments){
+
+            html += `
+
+            <p>
+            ${payment.vendor}
+            </p>
+
+            <div
+            class="bar"
+            style="
+            width:${payment.amount / 1000}px">
+
+            ${payment.amount.toLocaleString()}円
+
+            </div>
+
+            `;
+        }
+
+        console.log(html);
+
+        document.getElementById(
+            "chart"
+        ).innerHTML = html;
+    }
+
+    function loadCSV() {
+
+        let file =
+            document.getElementById(
+                "csvFile"
+            ).files[0];
+
+        if(!file){
+
+            alert(
+              "ファイルを選択してください"
+            );
+
+            return;
+
+        }
+
+        let reader =
+            new FileReader();
+
+        reader.onload =
+        function(e){
+
+            let lines =
+                e.target.result
+                    .trim()
+                    .split("\n");
+
+            payments = [];
+
+            errors = [];
+
+            for(
+              let i = 1;
+              i < lines.length;
+              i++
+             ){
+
+               let cols =
+                  lines[i]
+                 .split(",");
+
+               if(cols.length < 2){
+
+                 continue;
+
+                }
+
+                let vendor =
+                cols[0].trim();
+
+            let amountText =
+                cols[1].trim();
+
+            if(vendor == ""){
+
+                errors.push(
+                    "取引先未入力 : 行 " + i
+                );
+
+                continue;
+            }
+
+            if(amountText == ""){
+
+                errors.push(
+                    "金額未入力 : " +
+                    vendor
+                );
+
+                continue;
+            }
+
+            let amount =
+                Number(amountText);
+
+            if(isNaN(amount)){
+
+                errors.push(
+                    "数値エラー : " +
+                    vendor
+                );
+
+                continue;
+            }
+
+            if(amount <= 0){
+
+                errors.push(
+                    "金額エラー : " +
+                    vendor
+                );
+
+                continue;
+            }
+
+            let exists =
+                payments.some(
+
+                    p =>
+
+                    p.vendor === vendor
+                    &&
+                    p.amount === amount
+
+                );
+
+            if(exists){
+
+                errors.push(
+                    "重複データ : " +
+                    vendor
+                );
+
+                continue;
+            }
+
+            payments.push({
+
+                vendor : vendor,
+
+                amount : amount
+
+            });
+
+        }
+
+        savePayments();
+        
+        showPayments();
+        
+        updateSummary();
+        
+        showChart();
+
+        showErrors();
+        
+        };
+
+        reader.readAsText(
+            file,
+            "UTF-8"
+        );
+
+    }
+
+    function clearPayments(){
+
+        payments = [];
+
+        savePayments();
+
+        showPayments();
+
+        updateSummary();
+
+        showChart();
+    }
+
+    function showErrors(){
+
+        let html = "";
+
+        for(let err of errors){
+
+            html +=
+            "<p style='color:red'>"
+            + err +
+            "</p>";
+        }
+
+        if(errors.length == 0){
+
+            html =
+            "<p style='color:green'>エラーなし</p>";
+        }
+
+        document.getElementById(
+            "errorList"
+        ).innerHTML = html;
+
+        document.getElementById(
+            "validCount"
+        ).innerHTML =
+            "正常件数：" +
+            payments.length +
+            "件";
+
+        document.getElementById(
+            "errorCount"
+        ).innerHTML =
+            "エラー件数：" +
+            errors.length +
+            "件";
+        }
+
+</script>
+
+</body>
+</html>
