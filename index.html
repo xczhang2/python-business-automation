@@ -761,6 +761,8 @@
 
     function showTop3(){
 
+        console.log(payments);
+
         let top3 =
 
             [...payments]
@@ -776,6 +778,8 @@
 
             .slice(0,3);
 
+        console.log(top3);
+    
         let medals =
 
             ["🥇","🥈","🥉"];
@@ -823,7 +827,7 @@
         document.getElementById(
             "top3"
         ).innerHTML = html;
-    
+
     }
 
     function showFiltered(list){
