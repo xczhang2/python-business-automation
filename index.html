@@ -230,6 +230,16 @@
 
     let payments = [];
 
+    const rates = {
+
+       JPY : 1,
+
+       USD : 150,
+
+       CNY : 20
+
+    };
+
     function addPayment(){
 
         let vendor =
@@ -367,10 +377,14 @@
 
         for(let payment of payments){
 
-            total += payment.amount;
+            total += payment.amount *
+
+            rates[payment.currency];
 
             if(
-                payment.amount >
+                payment.amount *
+
+                rates[payment.currency] >
                 maxPayment.amount
             ){
 
