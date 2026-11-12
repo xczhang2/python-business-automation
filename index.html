@@ -4,11 +4,11 @@
 
 <head>
     <meta charset="UTF-8">
-
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>支払予定管理システム Ver1.1</title>
+    <title>支払予定管理システム Ver1.3</title>
 
     <style>
 
@@ -112,7 +112,7 @@
 
     <div class="container">
 
-    <h1>支払予定管理システム Ver1.1</h1>
+    <h1>支払予定管理システム Ver1.3</h1>
 
     <p id="mode">
 
@@ -146,6 +146,24 @@
 
     <button onclick="showPayments()">
     全件表示
+    </button>
+
+    </div>
+
+    <div class="card">
+
+    <h2>Excel取込</h2>
+
+    <input
+    type="file"
+    id="excelFile"
+    accept=".xlsx">
+
+    <button
+    onclick="loadExcel()">
+
+    Excel読込
+
     </button>
 
     </div>
@@ -1357,6 +1375,101 @@ function drawChart(){
             }
 
         );
+}
+
+function loadExcel(){
+
+    let file =
+
+        document.getElementById(
+            "excelFile"
+        ).files[0];
+
+    if(!file){
+
+        alert(
+            "Excelファイルを選択してください"
+        );
+
+        return;
+    }
+
+    let reader =
+        new FileReader();
+
+    reader.onload =
+    function(e){
+
+        let data =
+            new Uint8Array(
+                e.target.result
+            );
+
+        let workbook =
+
+            XLSX.read(
+                data,
+                {
+                    type:"array"
+                }
+            );
+
+        let sheetName =
+            workbook.SheetNames[0];
+
+        let sheet =
+            workbook.Sheets[
+                sheetName
+            ];
+
+        let rows =
+
+            XLSX.utils
+            .sheet_to_json(
+                sheet
+            );
+
+        payments = [];
+
+        for(let row of rows){
+
+            payments.push({
+
+                vendor :
+                    row["取引先"],
+
+                date :
+                    row["支払日"],
+
+                currency :
+                    row["通貨"],
+
+                amount :
+                    Number(
+                        row["支払額"]
+                    )
+
+            });
+
+        }
+
+        savePayments();
+
+        showPayments();
+
+        updateSummary();
+
+        showTop3();
+
+        drawChart();
+
+        drawCurrencyChart();
+
+    };
+
+    reader.readAsArrayBuffer(
+        file
+    );
 }
 
 </script>
