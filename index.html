@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <head>
     <meta charset="UTF-8">
@@ -238,11 +239,35 @@
  
     </div>
 
+    <div class="card">
+
+    <h2>📊 支払額棒グラフ</h2>
+
+    <canvas id="paymentChart">
+
+    </canvas>
+
+    </div>
+
+    <div class="card">
+
+    <h2>🥧 通貨別構成比</h2>
+
+    <canvas id="currencyChart">
+
+    </canvas>
+
+    </div>
+
 </div>
 
 <script>
 
     let payments = [];
+
+    let paymentChart = null;
+
+    let currencyChart = null;
 
     const rates = {
 
@@ -304,6 +329,10 @@
         showCurrencySummary();
 
         showTop3();
+
+        drawChart();
+
+        drawCurrencyChart();
     
     }
 
@@ -645,6 +674,10 @@
         showChart();
 
         showErrors();
+
+        drawChart();
+
+        drawCurrencyChart();
         
         };
 
@@ -681,6 +714,10 @@
     updateSummary();
 
     showTop3();
+
+    drawChart();
+
+    drawCurrencyChart();
 
 }
 
@@ -1146,6 +1183,180 @@ function clearForm(){
     document.getElementById(
         "amount"
     ).value = "";
+}
+
+function drawChart(){
+
+    if(paymentChart){
+
+        paymentChart.destroy();
+
+    }
+
+    let labels =
+        payments.map(
+            p => p.vendor
+        );
+
+    let amounts =
+        payments.map(
+            p => p.amount
+        );
+
+    let ctx =
+
+        document.getElementById(
+            "paymentChart"
+        );
+
+    paymentChart =
+
+        new Chart(
+
+            ctx,
+
+            {
+
+                type : "bar",
+
+                data : {
+
+                    labels : labels,
+
+                    datasets : [
+
+                        {
+
+                            label :
+                            "支払額",
+
+                            data :
+                            amounts,
+
+                            backgroundColor :
+                            "#4e79a7"
+
+                        }
+
+                    ]
+
+                },
+
+                options : {
+
+                    responsive : true,
+
+                    plugins : {
+
+                        title : {
+
+                            display : true,
+
+                            text :
+                                "支払額ランキング"
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        );
+}
+
+    function drawCurrencyChart(){
+
+    if(currencyChart){
+
+        currencyChart.destroy();
+
+    }
+
+    let totals = {
+
+        JPY : 0,
+
+        USD : 0,
+
+        CNY : 0
+
+    };
+
+    for(let payment of payments){
+
+        totals[
+            payment.currency
+        ] += payment.amount;
+
+    }
+
+    let ctx =
+
+        document.getElementById(
+            "currencyChart"
+        );
+
+    currencyChart =
+
+        new Chart(
+
+            ctx,
+
+            {
+
+                type : "pie",
+
+                data : {
+
+                    labels :
+
+                    [
+                        "JPY",
+                        "USD",
+                        "CNY"
+                    ],
+
+                    datasets : [
+
+                        {
+
+                            data : [
+
+                                totals.JPY,
+
+                                totals.USD,
+
+                                totals.CNY
+
+                            ],
+
+                            backgroundColor : [
+
+                                "#4e79a7",
+
+                                "#f28e2b",
+
+                                "#59a14f"
+
+                            ]
+
+                        }
+
+                    ]
+
+                },
+
+                options : {
+
+                    responsive : true
+
+                }
+
+            }
+
+        );
 }
 
 </script>
