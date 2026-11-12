@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 <html lang="ja">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <head>
+    
     <meta charset="UTF-8">
-    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>支払予定管理システム Ver1.3</title>
+    <title>支払予定管理システム Ver2.1</title>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- SheetJS -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
     <style>
 
@@ -105,14 +111,71 @@
 
     }
 
+    /* 最初は非表示 */
+
+    #mainApp{
+        display:none;
+    }
+
     </style>
+
 </head>
 
 <body>
 
-    <div class="container">
+    <!-- ログインエリア -->
 
-    <h1>支払予定管理システム Ver1.3</h1>
+    <div id="loginArea" class="card">
+
+    <h2>🔐 ログイン</h2>
+
+    <input
+    type="text"
+    id="username"
+    placeholder="ユーザー名">
+
+    <br><br>
+
+    <input
+    type="password"
+    id="password"
+    placeholder="パスワード">
+
+    <br><br>
+
+    <label>
+
+    <input
+    type="checkbox"
+    onclick="togglePassword()">
+
+    パスワード表示
+
+    </label>
+
+    <br><br>
+
+    <button onclick="login()">
+    ログイン
+    </button>
+
+    </div>
+
+    <!-- メインシステム -->
+
+    <div id="mainApp">
+
+    <div class="card">
+
+    <p id="userInfo"></p>
+
+    <button onclick="logout()">
+    ログアウト
+    </button>
+
+    </div>
+
+    <h1>支払予定管理システム Ver2.1</h1>
 
     <p id="mode">
 
@@ -307,7 +370,14 @@
 
     window.onload = async function(){
 
-        loadPayments();
+        if(
+            localStorage.getItem(
+                "login"
+            ) === "true"
+        ){
+
+            showMainApp();
+        }loadPayments();
 
         await loadRates();
 
@@ -1588,6 +1658,109 @@ function drawChart(){
 
         }
 
+    }
+
+    /* ===== ログイン機能 ===== */
+
+    function login(){
+
+        let username =
+            document.getElementById(
+                "username"
+            ).value;
+
+        let password =
+            document.getElementById(
+                "password"
+            ).value;
+
+        if(
+            username === "admin" &&
+            password === "1234"
+        ){
+
+            localStorage.setItem(
+                "login",
+                "true"
+            );
+
+            localStorage.setItem(
+                "username",
+                username
+            );
+
+            showMainApp();
+
+        }else{
+
+            alert(
+                "ログイン失敗"
+            );
+        }
+    }
+
+    function showMainApp(){
+
+        document.getElementById(
+            "loginArea"
+        ).style.display =
+            "none";
+
+        document.getElementById(
+            "mainApp"
+        ).style.display =
+            "block";
+
+        document.getElementById(
+            "userInfo"
+        ).innerHTML =
+            "👤 ログイン中 : " +
+            localStorage.getItem(
+                "username"
+            );
+    }
+
+    function logout(){
+
+        localStorage.removeItem(
+            "login"
+        );
+
+        localStorage.removeItem(
+            "username"
+        );
+
+        document.getElementById(
+            "loginArea"
+        ).style.display =
+            "block";
+
+        document.getElementById(
+            "mainApp"
+        ).style.display =
+            "none";
+    }
+
+    function togglePassword(){
+
+        let password =
+            document.getElementById(
+                "password"
+            );
+
+        if(
+            password.type ===
+            "password"
+        ){
+
+            password.type =
+                "text";
+
+        }else{
+
+            password.type =
+                "password";
+        }
     }
 
 </script>
