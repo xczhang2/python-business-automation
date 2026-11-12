@@ -152,6 +152,14 @@
 
     <div class="card">
 
+    <h2>為替レート</h2>
+
+    <p id="rateInfo">レート取得中...</p>
+
+    </div>
+
+    <div class="card">
+
     <h2>Excel取込</h2>
 
     <input
@@ -294,6 +302,24 @@
        USD : 150,
 
        CNY : 20
+
+    };
+
+    window.onload = async function(){
+
+        loadPayments();
+
+        await loadRates();
+
+        showPayments();
+
+        updateSummary();
+
+        showTop3();
+
+        drawChart();
+
+        drawCurrencyChart();
 
     };
 
@@ -1487,6 +1513,82 @@ function drawChart(){
         file
     );
 }
+
+    async function loadRates(){
+
+        try{
+
+            let response =
+
+                await fetch(
+
+                "https://open.er-api.com/v6/latest/JPY"
+
+                );
+
+            let data =
+
+                await response.json();
+
+            rates = {
+
+                JPY : 1,
+
+                USD :
+                    1 /
+                    data.rates.USD,
+
+                CNY :
+                    1 /
+                    data.rates.CNY,
+
+                EUR :
+                    1 /
+                    data.rates.EUR
+
+            };
+
+            document.getElementById(
+                "rateInfo"
+            ).innerHTML =
+
+        `
+            USD :
+            ${rates.USD.toFixed(2)}
+            円
+
+            <br>
+
+            CNY :
+            ${rates.CNY.toFixed(2)}
+            円
+
+            <br>
+
+            EUR :
+            ${rates.EUR.toFixed(2)}
+            円
+            `;
+
+            updateSummary();
+
+            showTop3();
+
+        }
+
+        catch(error){
+
+            document.getElementById(
+                "rateInfo"
+            ).innerHTML =
+
+            "為替レート取得失敗";
+
+            console.error(error);
+
+        }
+
+    }
 
 </script>
 
