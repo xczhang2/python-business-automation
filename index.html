@@ -169,6 +169,8 @@
 
     <p id="userInfo"></p>
 
+    <p id="roleInfo"></p>
+
     <button onclick="logout()">
     ログアウト
     </button>
@@ -239,6 +241,8 @@
 
     </div>
 
+    <div id="adminArea">
+
     <div class="card">
  
     <h2>支払予定登録</h2>
@@ -265,6 +269,8 @@
     <button onclick="addPayment()">
     登録
     </button>
+ 
+    </div>
  
     </div>
  
@@ -367,7 +373,8 @@
         CNY : 20
 
     };
-
+    
+    /* 起動時 */
     window.onload = async function(){
 
         if(
@@ -390,6 +397,10 @@
         drawChart();
 
         drawCurrencyChart();
+
+              showMainApp();
+
+              applyRole();
 
     };
 
@@ -1688,10 +1699,41 @@ function drawChart(){
                 "username",
                 username
             );
-
+            
+            localStorage.setItem(
+                "role",
+                "admin"
+            );
+            
             showMainApp();
 
-        }else{
+        }
+
+        else if(
+            username === "user"
+            &&
+            password === "1234"
+        ){
+
+            localStorage.setItem(
+                "login",
+                "true"
+            );
+
+            localStorage.setItem(
+                "username",
+                username
+            );
+
+            localStorage.setItem(
+                "role",
+                "user"
+            );
+
+            showMainApp();
+        }
+
+        else{
 
             alert(
                 "ログイン失敗"
@@ -1760,6 +1802,22 @@ function drawChart(){
 
             password.type =
                 "password";
+        }
+    }
+
+    function applyRole(){
+
+        let role =
+            localStorage.getItem(
+                "role"
+            );
+
+        if(role === "user"){
+
+            document.getElementById(
+                "adminArea"
+            ).style.display =
+                "none";
         }
     }
 
