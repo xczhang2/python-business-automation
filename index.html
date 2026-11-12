@@ -1439,7 +1439,10 @@ function loadExcel(){
                     row["取引先"],
 
                 date :
-                    row["支払日"],
+                    XLSX.SSF.format(
+                      "yyyy-mm-dd",
+                    row["支払日"]
+                ),
 
                 currency :
                     row["通貨"],
