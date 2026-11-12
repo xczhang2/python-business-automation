@@ -384,8 +384,8 @@
 
             	(a,b) =>
 
-            	b.amount -
-            	a.amount
+            	b.amount * rates[b.currency]-
+            	a.amount * rates[a.currency]
 
         	);
 
@@ -409,7 +409,7 @@
 
         	<td>
 
-        	${payment.amount.toLocaleString()}円
+        	${payment.amount.toLocaleString()}
 
         	</td>
 
@@ -1388,84 +1388,84 @@ function drawChart(){
         );
 }
 
-function loadExcel(){
+    function loadExcel(){
 
-    let file =
+        let file =
 
-        document.getElementById(
-            "excelFile"
-        ).files[0];
+            document.getElementById(
+                "excelFile"
+            ).files[0];
 
-    if(!file){
+        if(!file){
 
-        alert(
-            "Excelファイルを選択してください"
-        );
-
-        return;
-    }
-
-    let reader =
-        new FileReader();
-
-    reader.onload =
-    function(e){
-
-        let data =
-            new Uint8Array(
-                e.target.result
+            alert(
+                "Excelファイルを選択してください"
             );
 
-        let workbook =
-
-            XLSX.read(
-                data,
-                {
-                    type:"array"
-                }
-            );
-
-        let sheetName =
-            workbook.SheetNames[0];
-
-        let sheet =
-            workbook.Sheets[
-                sheetName
-            ];
-
-        let rows =
-
-            XLSX.utils
-            .sheet_to_json(
-                sheet
-            );
-
-        payments = [];
-
-        for(let row of rows){
-
-            payments.push({
-
-                vendor :
-                    row["取引先"],
-
-                date :
-                    XLSX.SSF.format(
-                      "yyyy-mm-dd",
-                    row["支払日"]
-                ),
-
-                currency :
-                    row["通貨"],
-
-                amount :
-                    Number(
-                        row["支払額"]
-                    )
-
-            });
-
+            return;
         }
+
+        let reader =
+            new FileReader();
+
+        reader.onload =
+        function(e){
+
+            let data =
+                new Uint8Array(
+                    e.target.result
+                );
+
+            let workbook =
+
+                XLSX.read(
+                    data,
+                    {
+                        type:"array"
+                    }
+                );
+
+            let sheetName =
+                workbook.SheetNames[0];
+
+            let sheet =
+                workbook.Sheets[
+                    sheetName
+                ];
+
+            let rows =
+
+                XLSX.utils
+                .sheet_to_json(
+                    sheet
+                );
+
+            payments = [];
+
+            for(let row of rows){
+
+                payments.push({
+
+                    vendor :
+                        row["取引先"],
+
+                    date :
+                        XLSX.SSF.format(
+                          "yyyy-mm-dd",
+                        row["支払日"]
+                    ),
+
+                    currency :
+                        row["通貨"],
+
+                    amount :
+                        Number(
+                            row["支払額"]
+                        )
+
+                });
+
+            }
 
         savePayments();
 
