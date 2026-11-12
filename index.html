@@ -523,6 +523,19 @@
         avg.toLocaleString() +
 
         "円";
+for(let payment of payments){
+
+    console.log(payment);
+
+    console.log(payment.amount);
+
+    console.log(payment.currency);
+
+    console.log(
+        rates[payment.currency]
+    );
+
+}
     }
 
     function showChart(){
