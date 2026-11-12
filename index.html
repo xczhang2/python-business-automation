@@ -1578,13 +1578,13 @@ function drawChart(){
 
         catch(error){
 
+	    console.error(error);
+
             document.getElementById(
                 "rateInfo"
             ).innerHTML =
 
             "為替レート取得失敗";
-
-            console.error(error);
 
         }
 
