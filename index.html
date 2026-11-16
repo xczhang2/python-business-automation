@@ -8,7 +8,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>支払予定管理システム Ver2.1</title>
+    <title>支払予定管理システム Ver2.3</title>
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -177,7 +177,7 @@
 
     </div>
 
-    <h1>支払予定管理システム Ver2.1</h1>
+    <h1>支払予定管理システム Ver2.3</h1>
 
     <p id="mode">
 
@@ -220,6 +220,18 @@
     <h2>為替レート</h2>
 
     <p id="rateInfo">レート取得中...</p>
+
+    </div>
+
+    <div class="card">
+
+    <h2>
+    📋 操作履歴
+    </h2>
+
+    <div id="logArea">
+
+    </div>
 
     </div>
 
@@ -381,6 +393,8 @@
         CNY : 20
 
     };
+
+    let logs = [];
     
     /* 起動時 */
     window.onload = async function(){
@@ -464,6 +478,14 @@
         drawChart();
 
         drawCurrencyChart();
+
+        addLog(
+
+            payment.vendor +
+
+            " を登録"
+
+        );
     
     }
 
@@ -1310,6 +1332,14 @@ function updatePayment(){
         "登録モード";
 
     alert("更新しました");
+
+    addLog(
+
+        payment.vendor +
+
+        " を更新"
+
+    );
 }
 
 function deletePayment(index){
@@ -1325,6 +1355,11 @@ function deletePayment(index){
         return;
     }
 
+    let vendor =
+
+    payments[index]
+    .vendor;
+
     payments.splice(index,1);
 
     savePayments();
@@ -1334,6 +1369,15 @@ function deletePayment(index){
     updateSummary();
 
     showTop3();
+
+    addLog(
+
+        vendor +
+
+        " を削除"
+
+    );
+
 }
 
 function clearForm(){
@@ -1867,6 +1911,97 @@ function drawChart(){
                 "none";
         }
     }
+
+function addLog(message){
+
+    let username =
+
+        localStorage.getItem(
+            "username"
+        );
+
+    let now =
+
+        new Date()
+        .toLocaleString();
+
+    logs.push({
+
+        user : username,
+
+        time : now,
+
+        message : message
+
+    });
+
+    saveLogs();
+
+    showLogs();
+}
+
+function saveLogs(){
+
+    localStorage.setItem(
+
+        "logs",
+
+        JSON.stringify(logs)
+
+    );
+}
+
+function loadLogs(){
+
+    logs =
+
+        JSON.parse(
+
+            localStorage.getItem(
+                "logs"
+            )
+
+        )
+
+        ||
+
+        [];
+
+}
+
+function showLogs(){
+
+    let html = "";
+
+    for(let log of logs){
+
+        html += `
+
+        <p>
+
+        ${log.time}
+
+        <br>
+
+        ${log.user}
+
+        <br>
+
+        ${log.message}
+
+        </p>
+
+        <hr>
+
+        `;
+    }
+
+    document.getElementById(
+        "logArea"
+    ).innerHTML =
+        html;
+
+}
 
 </script>
 
