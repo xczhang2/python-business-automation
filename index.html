@@ -223,6 +223,8 @@
 
     </div>
 
+    <div id="fileArea">
+
     <div class="card">
 
     <h2>Excel取込</h2>
@@ -238,6 +240,12 @@
     Excel読込
 
     </button>
+
+    <button onclick="exportCSV()">
+    CSV出力
+    </button>
+
+    </div>
 
     </div>
 
@@ -384,7 +392,9 @@
         ){
 
             showMainApp();
-        }loadPayments();
+        }
+
+       loadPayments();
 
         await loadRates();
 
@@ -397,10 +407,6 @@
         drawChart();
 
         drawCurrencyChart();
-
-              showMainApp();
-
-              applyRole();
 
     };
 
@@ -481,6 +487,11 @@
 
     function showPayments(){
 
+        let role =
+            localStorage.getItem(
+            "role"
+        );
+
         let html = "";
 
     	let sorted =
@@ -522,22 +533,45 @@
 
         	<td>
 
-                <button onclick="editPayment(${i})">
+                ${
+                 role === "admin"
 
-		編集
+                  ?
 
-		</button>
+                  `<button
+                 onclick="editPayment(${i})">
+
+                 編集
+
+                 </button>`
+
+                :
+
+                "閲覧のみ"
+
+                  }
 
 		</td>
 
 		<td>
 
-                <button
-                onclick="deletePayment(${i})">
+                ${
+                 role === "admin"
 
-                削除
+                   ?
 
-                </button>
+                `<button
+                 onclick="deletePayment(${i})">
+
+                 削除
+
+                  </button>`
+
+                  :
+
+                 "-"
+
+                }
 
             	</td>
 
@@ -1760,6 +1794,18 @@ function drawChart(){
             localStorage.getItem(
                 "username"
             );
+
+        document.getElementById(
+            "roleInfo"
+            ).innerHTML =
+
+            "🔑 権限 : " +
+
+            localStorage.getItem(
+                "role"
+            );
+
+        applyRole();
     }
 
     function logout(){
@@ -1772,15 +1818,11 @@ function drawChart(){
             "username"
         );
 
-        document.getElementById(
-            "loginArea"
-        ).style.display =
-            "block";
+        localStorage.removeItem(
+            "role"
+        );
 
-        document.getElementById(
-            "mainApp"
-        ).style.display =
-            "none";
+        location.reload();
     }
 
     function togglePassword(){
@@ -1816,6 +1858,11 @@ function drawChart(){
 
             document.getElementById(
                 "adminArea"
+            ).style.display =
+                "none";
+        
+            document.getElementById(
+                "fileArea"
             ).style.display =
                 "none";
         }
