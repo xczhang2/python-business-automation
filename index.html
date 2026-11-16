@@ -399,30 +399,34 @@
     /* 起動時 */
     window.onload = async function(){
 
-        if(
-            localStorage.getItem(
-                "login"
-            ) === "true"
-        ){
+    loadLogs();
 
-            showMainApp();
-        }
+    showLogs();
 
-       loadPayments();
+    if(
+        localStorage.getItem(
+            "login"
+        ) === "true"
+    ){
+        showMainApp();
+    }
 
-        await loadRates();
+    loadPayments();
 
-        showPayments();
+    await loadRates();
 
-        updateSummary();
+    showPayments();
 
-        showTop3();
+    updateSummary();
 
-        drawChart();
+    showTop3();
 
-        drawCurrencyChart();
+    drawChart();
 
-    };
+    drawCurrencyChart();
+
+    showCurrencySummary();
+};
 
     function addPayment(){
 
@@ -481,7 +485,7 @@
 
         addLog(
 
-            payment.vendor +
+            vendor +
 
             " を登録"
 
@@ -1333,12 +1337,14 @@ function updatePayment(){
 
     alert("更新しました");
 
+    let vendor =
+
+    document.getElementById(
+        "vendor"
+    ).value;
+
     addLog(
-
-        payment.vendor +
-
-        " を更新"
-
+        vendor + " を更新"
     );
 }
 
@@ -1996,11 +2002,16 @@ function showLogs(){
         `;
     }
 
+    if(logs.length === 0){
+
+        html =
+        "<p>ログなし</p>";
+    }
+
     document.getElementById(
         "logArea"
     ).innerHTML =
         html;
-
 }
 
 </script>
